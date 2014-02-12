@@ -1,6 +1,6 @@
 $(document).ready(function () {
     // 15 letters 
-    var ideal_state = ['a', 'b', 'c', 'd',   // 0  1  2  3
+    var goal_state = ['a', 'b', 'c', 'd',   // 0  1  2  3
                        'e', 'f', 'g', 'h',   // 4  5  6  7
                        'i', 'j', 'k', 'l',   // 8  9  10 11
                        'm', 'n', 'o', ' '];  // 12 13 14 15
@@ -13,6 +13,7 @@ $(document).ready(function () {
     var Board = function(state){
       // array holding letters positioned by index
       this.state = state;
+      this.visible = true;
     }
 
     Board.prototype.draw = function(){
@@ -75,17 +76,57 @@ $(document).ready(function () {
       }
     }
 
-    Board.prototype.swap = function(i1,i2){
+    Board.prototype.swap = function(i1,i2,v){
       if (this.isValidSwap(i1,i2)){
         var old_i1 = this.state[i1];
         var old_i2 = this.state[i2];
         this.state[i1] = old_i2;
         this.state[i2] = old_i1;
+        if (this.visible = true){
+          $(".steps").append("<li>swapped \"" + old_i1 + "\" with \"" + old_i2 + "\"</li>");
+          this.draw();
+        }
       }
       else{
         console.log("FATAL: tried to perform illegal swap.");
       }
-      this.draw();
+    }
+
+    Board.prototype.blank_space = function(){
+      return this.state.indexOf(' ');
+    }
+
+    Board.prototype.isGoalState = function(){
+      return (this.state === goal_state);
+    }
+
+    // Use iterative deepening to solve
+    Board.prototype.solve = function(){
+      this.visible = false;
+
+      var queue = []; // FIFO Queue
+      queue.push(this);
+      var finished = [];
+      while(queue.length > 0){
+        var new_board = queue.pop();
+        finished.push(new_board);
+        for (var i in this.state){
+          if(new_board.isValidSwap(i, new_board.blank_space())){
+            new_board.swap(i, new_board.blank_space());
+            if(finished.indexOf(new_board) === -1){
+              if(queue.indexOf(new_board) === -1){
+                queue.push(new_board);
+                if (new_board.isGoalState()){
+                  console.log("found board");
+                  return new_board; //or maybe our steps instead
+                }
+              }
+            }
+          }
+        }
+      }
+
+      this.visible = true;
     }
 
 
@@ -95,17 +136,8 @@ $(document).ready(function () {
     // initialize the board
 
     var clicks = 0;
-    $("html").click(function(){
-      found = 0;
-      var blank_space = 5;
-      for(var i = 0; i < 15 && found === 0 ; i++){
-        if(board.isValidSwap(blank_space, i)){
-          setTimeout(board.swap(blank_space, i),1000);
-          blank_space = i;
-          found = 1;
-        }
-      }
-      clicks++;
+    $(".solve").click(function(){
+      board.solve();
     });
 
 });
