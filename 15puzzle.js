@@ -10,6 +10,27 @@ $(document).ready(function () {
                        'i', 'j', 'k', 'h',   // 8  9  10 11
                        'm', 'n', 'o', 'l'];  // 12 13 14 15
 
+    // Board Collection based on JS Array
+    function BoardCollection() { };
+    BoardCollection.prototype = new Array;
+
+    BoardCollection.prototype.contains = function(object){
+        var found = true;
+        for (var i = 0; i < this.size; i++){
+          for (var j = 0; j < this[i].size; j++){
+            if (this[i][j] !== object[j]){
+              found = false;
+              break;
+            }
+          }
+          if (found !== false){
+            return true;
+          }
+        }
+        return false;
+      }
+
+    // Board object
     var Board = function(state){
       // array holding letters positioned by index
       this.state = state;
@@ -82,7 +103,7 @@ $(document).ready(function () {
         var old_i2 = this.state[i2];
         this.state[i1] = old_i2;
         this.state[i2] = old_i1;
-        if (this.visible = true){
+        if (this.visible === true){
           $(".steps").append("<li>swapped \"" + old_i1 + "\" with \"" + old_i2 + "\"</li>");
           this.draw();
         }
@@ -102,23 +123,26 @@ $(document).ready(function () {
 
     // Use iterative deepening to solve
     Board.prototype.solve = function(){
-      this.visible = false;
+      this.visible = true;
 
       var queue = []; // FIFO Queue
       queue.push(this);
-      var finished = [];
+      var finished = new BoardCollection();
+
       while(queue.length > 0){
         var new_board = queue.pop();
         finished.push(new_board);
-        for (var i in this.state){
+        for (var i = 0; i < 17; i++){
           if(new_board.isValidSwap(i, new_board.blank_space())){
-            new_board.swap(i, new_board.blank_space());
-            if(finished.indexOf(new_board) === -1){
-              if(queue.indexOf(new_board) === -1){
-                queue.push(new_board);
-                if (new_board.isGoalState()){
+            var child = new Board(new_board.state.slice(0));
+            child.swap(i, child.blank_space());
+            if(!finished.contains(child)){
+              if(queue.indexOf(child) === -1){
+                queue.push(child);
+                console.log(queue.length);
+                if (child.isGoalState()){
                   console.log("found board");
-                  return new_board; //or maybe our steps instead
+                  return child; //or maybe our steps instead
                 }
               }
             }
@@ -138,6 +162,7 @@ $(document).ready(function () {
     var clicks = 0;
     $(".solve").click(function(){
       board.solve();
+      console.log("left solve method");
     });
 
 });
