@@ -1,0 +1,14 @@
+.grid .grow {
+    width: 200px;
+    height: 48px;
+}
+.grid .gcol {
+    height: 48px;
+    width: 50px;
+    float: left;
+    border: 1px solid #aaa;
+}
+.grid {
+    border: 1px solid #aaa;
+    width: 200px;
+}
