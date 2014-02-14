@@ -4,10 +4,13 @@ $(document).ready(function () {
                       'd', 'e', 'f',  // 3 4 5
                       'g', 'h', ' ']; // 6 7 8
 
-    var jumbled_state = ['a', 'b', ' ',  // 0 1 2
+    var old_jumbled_state = ['a', 'b', ' ',  // 0 1 2
                          'd', 'e', 'c',  // 3 4 5
                          'g', 'h', 'f']; // 6 7 8
 
+    var jumbled_state = ['a', 'e', 'b',  // 0 1 2
+                         ' ', 'd', 'c',  // 3 4 5
+                         'g', 'h', 'f']; // 6 7 8
     // Board Collection based on JS Array
     function BoardCollection() { };
     BoardCollection.prototype = new Array;
@@ -97,8 +100,8 @@ $(document).ready(function () {
       this.state[i1] = old_i2;
       this.state[i2] = old_i1;
       if (this.visible === true){
-        $(".steps").append("<li>swapped \"" + old_i1 + "\" with \"" + old_i2 + "\"</li>");
-        this.draw();
+        //$(".steps").append("<li>swapped \"" + old_i1 + "\" with \"" + old_i2 + "\"</li>");
+        //this.draw();
       }
     }
 
@@ -122,7 +125,7 @@ $(document).ready(function () {
       queue.push(this);
       var finished = new BoardCollection();
 
-      while(queue.length < 100){
+      while(queue.length > 0){
         var new_board = queue.pop();
         if (new_board.isGoalState()){
           return new_board;
@@ -132,7 +135,6 @@ $(document).ready(function () {
           if(new_board.isValidSwap(i, new_board.blank_space())){
             var child = new Board(new_board.state.slice(0));
             child.swap(i, child.blank_space());
-            console.log(child.state);
             if(!finished.contains(child)){
               if(!queue.contains(child)){
                 queue.push(child);
